@@ -9,14 +9,20 @@ history:
 # import os
 # project_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
 # sys.path.append(project_path)
-import random
 
 BLACK = 1
 WHITE = 2
 
 
 class Wuzi0:
-    def __init__(self, s, ln=5, black_first=True, record_flag=False):
+    def __init__(self, s=10, ln=5, black_first=True, record_flag=False):
+        """
+
+        :param s:
+        :param ln:
+        :param black_first:
+        :param record_flag:
+        """
         self.width = self.height = s
         self.board = [[0] * s for i in range(s)]
         #
@@ -29,8 +35,9 @@ class Wuzi0:
         #
         self.end = False
         self.result = 0
-        #
+        # 连续多少个获胜
         self.ln = ln
+        # 这里存的是待检查的下标
         self.to_check_idx = []
         self._prepare()
         self.win_idx = []
@@ -38,9 +45,9 @@ class Wuzi0:
     def step(self, r, c):
         if self.end:
             return False
-        if c >= self.width:
+        if c >= self.width or c < 0:
             return False
-        if r >= self.height:
+        if r >= self.height or r < 0:
             return False
         if self.board[r][c] != 0:
             return False
@@ -129,6 +136,12 @@ class Wuzi0:
                 self.to_check_idx.append(arr)
 
     def _check_process(self, arr):
+        """
+        数有几个连续的相同的子
+        进行胜负判定
+        :param arr:
+        :return:
+        """
         cur = 0
         n = 0
         for pot in arr:
@@ -168,6 +181,8 @@ class Wuzi0:
 
 
 if __name__ == '__main__':
+    import random
+
     sz = 10
     wz = Wuzi0(sz, record_flag=True)
     print(wz.board)
