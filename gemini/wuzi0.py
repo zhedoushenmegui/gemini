@@ -177,7 +177,7 @@ class Wuzi0:
     def pprint(self):
         for row in self.board:
             print(row)
-        print(self.win_idx)
+        print("winner:", wz.result)
 
 
 if __name__ == '__main__':
@@ -185,12 +185,10 @@ if __name__ == '__main__':
 
     sz = 10
     wz = Wuzi0(sz, record_flag=True)
-    print(wz.board)
     while not wz.end:
         acts = [[r, c] for r in range(sz) for c in range(sz) if wz.board[r][c] == 0]
         act = random.choice(acts)
         wz.step(*act)
     wz.pprint()
-    print(wz.result)
     print(wz.records)
 
