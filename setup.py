@@ -55,3 +55,8 @@ setup(
     install_requires=get_install_requires(),
     extras_require=get_extras_require(),
 )
+
+
+"""
+usage: python setup.py bdist_wheel
+"""

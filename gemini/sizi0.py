@@ -9,6 +9,8 @@ history:
 # import os
 # project_path = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../'))
 # sys.path.append(project_path)
+import random
+
 DEFAULT = 0
 BLACK = 1
 WHITE = 2
