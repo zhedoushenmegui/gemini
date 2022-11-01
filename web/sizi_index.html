@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sizi</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #app {
+            max-width: 1000px;
+            margin: 0 auto;
+            height: calc(100vh);
+            padding: 10px;
+        }
+
+        #container {
+            width: 407px;
+            background: #CC9933;
+
+            margin: 50px auto;
+            cursor: pointer;
+            border: 3px solid black;
+        }
+
+        #board {
+        }
+
+        .pot {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border-left: 1px black solid;
+        }
+
+
+        .pot:first-child {
+            border-left: none;
+        }
+
+        .white {
+            background-color: white;
+
+        }
+
+        .black {
+            background-color: black;
+
+        }
+
+        .default {
+
+        }
+
+        .pot span {
+            display: inline-block;
+            width: 100%;
+            height: 100%;
+            color: rgba(0, 0, 0, 0);
+            border-radius: 25px;
+
+        }
+
+        .row {
+            margin-bottom: 0;
+            border-top: 1px solid black;
+        }
+
+        .row:first-child {
+            border-top: none;
+        }
+        a {
+            text-decoration: None;
+        }
+    </style>
+    <script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/vue/3.2.31/vue.global.js"></script>
+    <script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/axios/0.26.0/axios.min.js"></script>
+</head>
+<body>
+<div id="app">
+    <a href="/"><h2>Home</h2></a>
+    <h2>{{agent}}</h2>
+
+    <div id="container">
+
+        <div v-for="(row, indexR) in board " class="row">
+            <span v-for="(pot, indexC) in row" class="pot" @click="putPot(indexR, indexC)">
+                <span v-if="pot===BLACK" class="black">0</span>
+                <span v-if="pot===WHITE" class="white">0</span>
+                <span v-if="pot===DEFAULT" class="default">0</span>
+            </span>
+        </div>
+
+
+    </div>
+
+</div>
+
+
+</body>
+<script>
+    const {createApp} = Vue
+    const BLACK = 1;
+    const WHITE = 2;
+    const DEFAULT = 0;
+    const USE_BLACK = true;
+
+    createApp({
+        data() {
+            return {
+                rows: 6,
+                cols: 8,
+                board: [],
+                useBlack: USE_BLACK,
+
+                BLACK: BLACK,
+                WHITE: WHITE,
+                DEFAULT: DEFAULT,
+
+                locked: false,
+                ////
+                agent: 'random',
+
+            }
+        },
+        created() {
+            this.board = [];
+            for (let i = 0; i < this.rows; i++) {
+                let arr = [];
+                for (let j = 0; j < this.cols; j++) {
+                    arr.push(0);
+                }
+                this.board.push(arr)
+            }
+
+            if (/random/.test(location.href)) {
+                this.agent = 'random';
+            } else if (/one_step/.test(location.href)) {
+                this.agent = 'one_step';
+            } else {
+                alert("use default agent: random")
+            }
+
+        },
+
+        methods: {
+            post: function (url, raw, success, err) {
+                axios.post(url, raw)
+                    .then(function (resp) {
+                        let data = resp.data;
+                        success(data);
+                    })
+                    .catch(function (resp) {
+                        if (err === undefined) {
+                            return false;
+                        }
+                        err(resp);
+                    })
+            },
+            putPot(r, c) {
+                if (r < this.board.length - 1 && this.board[r + 1][c] === DEFAULT) {
+                    return false;
+                }
+                if (this.board[r][c] !== DEFAULT) {
+                    return false;
+                }
+                if (this.locked) {
+                    return false;
+                }
+                this.locked = true;
+                this.board[r][c] = this.useBlack ? BLACK : WHITE;
+
+                let newboard = [];
+                for (let i = this.board.length - 1; i >= 0; i--) {
+                    newboard.push(this.board[i]);
+                }
+
+                let req = {board: newboard, use_black: this.useBlack};
+                let v = this;
+                this.post("/" + this.agent, req, function (data, status) {
+                    if (data.status === 0) {
+                        let resp = data.resp;
+                        if (resp.action >= 0) {
+                            let r = v.board.length - 1 - Math.floor(resp.action / v.cols);
+                            let c = resp.action % v.cols;
+                            v.board[r][c] = v.useBlack ? WHITE : BLACK;
+                        }
+
+                        if (resp.end) {
+                            setTimeout(function () {
+                                if (resp.winner === DEFAULT) {
+                                    alert("game ended; black and white drew")
+                                } else {
+                                    let winner = resp.winner === WHITE ? "WHITE" : "BLACK";
+                                    alert("game is end, winner is " + winner);
+                                }
+                            }, 100)
+
+                        } else {
+                            v.locked = false;
+                        }
+                    } else {
+                        alert("error, check server log");
+                    }
+                });
+
+            }
+        },
+    }).mount('#app')
+</script>
+</html>
