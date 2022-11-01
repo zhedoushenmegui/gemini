@@ -24,7 +24,7 @@ class Sizi0:
     2. 除了第一行,每个落子的下方都要有棋子;
     """
 
-    def __init__(self, rows=6, cols=6, ln=4, black_first=True, record_flag=False):
+    def __init__(self, rows, cols, ln=4, black_first=True, record_flag=False):
         assert cols >= 6
         assert rows >= 6
         assert ln > 2
@@ -139,7 +139,7 @@ class SiziRandomAgent:
 
 class Sizi1StepAgent:
     def __init__(self, me=WHITE):
-        self.inner = Sizi0()
+        self.inner = Sizi0(6, 8)
         self.me = me
 
     def _copy(self, sizi: Sizi0):
@@ -194,7 +194,7 @@ if __name__ == '__main__':
     use_black = False
 
     agent = Sizi1StepAgent(me=WHITE if use_black else BLACK)
-    sz = Sizi0()
+    sz = Sizi0(6, 8)
 
     # 下面这行代码, 启动后, 黑方一步获胜, 方便调试
     # sz.board[0] = [BLACK, BLACK, BLACK, DEFAULT, DEFAULT, DEFAULT]

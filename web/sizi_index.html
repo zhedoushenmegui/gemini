@@ -82,6 +82,7 @@
 <div id="app">
     <a href="/"><h2>Home</h2></a>
     <h2>{{agent}}</h2>
+    <button @click="refresh">restart</button>
 
     <div id="container">
 
@@ -147,9 +148,17 @@
                 this.useBlack = false;
                 this.board[this.rows-1][0] = BLACK;
             }
+            //
+            if(this.rows <6 || this.cols < 8) {
+                alert("rows: [6, ), cols: [8, )");
+                this.locked = true;
+            }
         },
 
         methods: {
+            refresh(){
+                location.reload()
+            },
             post: function (url, raw, success, err) {
                 axios.post(url, raw)
                     .then(function (resp) {
@@ -181,7 +190,7 @@
                     newboard.push(this.board[i]);
                 }
 
-                let req = {board: newboard, use_black: this.useBlack};
+                let req = {board: newboard, use_black: this.useBlack, rows: this.rows, cols: this.cols};
                 let v = this;
                 this.post("/" + this.agent, req, function (data, status) {
                     if (data.status === 0) {

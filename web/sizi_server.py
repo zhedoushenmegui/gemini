@@ -26,10 +26,12 @@ class RandomAgent(tornado.web.RequestHandler):
         try:
             data = json.loads(self.request.body)
             board = data['board']
+            rows = data['rows']
+            cols = data['cols']
 
             from gemini.sizi0 import Sizi0, SiziRandomAgent, WHITE, BLACK
             use_black = data.get('use_black', True)
-            sz = Sizi0()
+            sz = Sizi0(rows, cols)
             sz.shuffle_board(board)
             if sz.end:
                 resp = {'action': -1, 'end': sz.end, "winner": sz.result}
@@ -58,10 +60,12 @@ class OneStepAgent(tornado.web.RequestHandler):
         try:
             data = json.loads(self.request.body)
             board = data['board']
+            rows = data['rows']
+            cols = data['cols']
 
             from gemini.sizi0 import Sizi0, Sizi1StepAgent, WHITE, BLACK
             use_black = data.get('use_black', True)
-            sz = Sizi0()
+            sz = Sizi0(rows, cols)
             sz.shuffle_board(board)
             if sz.end:
                 resp = {'action': -1, 'end': sz.end, "winner": sz.result}
