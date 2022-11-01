@@ -99,7 +99,8 @@ if __name__ == '__main__':
     application = tornado.web.Application(routes)
     http_server = tornado.httpserver.HTTPServer(application, xheaders=True)
     ###
-    assert len(sys.argv) == 2
-    port = int(sys.argv[1].strip())
+    port = 18020
+    if len(sys.argv) == 2:
+        port = int(sys.argv[1].strip())
     http_server.listen(port)
     tornado.ioloop.IOLoop.current().start()
