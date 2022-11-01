@@ -47,6 +47,22 @@ class Sizi0:
         self.end = False
         self.result = DEFAULT
 
+    def shuffle_board(self, board):
+        self.board = [[p for p in row] for row in board]
+        assert len(board) > 0
+        self.height = len(board)
+        self.width = len(board[0])
+        self.global_check()
+        self.cal_acts()
+
+    def global_check(self):
+        for r in range(self.height):
+            for c in range(self.width):
+                if self.board[r][c] != DEFAULT:
+                    self.check(r, c)
+                if self.end:
+                    return
+
     def cal_acts(self):
         self.acts = [(r, c) for r in range(self.height) for c in range(self.width) if
                      self.board[r][c] == DEFAULT and (r == 0 or self.board[r - 1][c] != DEFAULT)]
@@ -68,7 +84,7 @@ class Sizi0:
         self.board[r][c] = pot
         self.black_flag = not self.black_flag
         #
-        self.check(r, c, pot)
+        self.check(r, c)
         #
         if self.record_flag:
             self.records.append((self.stepn, r, c, pot,))
@@ -77,7 +93,8 @@ class Sizi0:
         #
         return True
 
-    def check(self, r, c, pot):
+    def check(self, r, c, *args, **kwargs):
+        pot = self.board[r][c]
         # 换个思路
         tobe_check = [
             [(r - i, c) for i in range(self.ln) if 0 <= r - i < self.height],
@@ -111,6 +128,9 @@ class Sizi0:
 
 
 class SiziRandomAgent:
+    def __init__(self, *args, **kwargs):
+        pass
+
     def perform(self, sizi: Sizi0, *args, **kwargs):
         pot = random.choice(sizi.acts)
         actioni = pot[0] * sizi.width + pot[1]
@@ -173,14 +193,14 @@ if __name__ == '__main__':
 
     use_black = False
 
-    agent = Sizi1StepAgent(me=not use_black)
+    agent = Sizi1StepAgent(me=WHITE if use_black else BLACK)
     sz = Sizi0()
 
     # 下面这行代码, 启动后, 黑方一步获胜, 方便调试
     # sz.board[0] = [BLACK, BLACK, BLACK, DEFAULT, DEFAULT, DEFAULT]
     if not use_black:
         pot = agent.perform(sz)
-        sz.step(pot//sz.width, pot%sz.width)
+        sz.step(pot // sz.width, pot % sz.width)
     #
     while not sz.end:
         sz.print_board()
@@ -202,6 +222,6 @@ if __name__ == '__main__':
             break
         #
         pot = agent.perform(sz)
-        sz.step(pot//sz.width, pot%sz.width)
+        sz.step(pot // sz.width, pot % sz.width)
     print("winner: ", sz.result)
     sz.print_board()
