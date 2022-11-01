@@ -85,8 +85,10 @@ class OneStepAgent(tornado.web.RequestHandler):
 class Index(tornado.web.RequestHandler):
     def get(self):
         self.write("""
-        <div><a href='/one_step'>one_step</a> </div>
-        <div><a href='/random'>random</a> </div>
+        <div><a href='/one_step'>one_step[use black]</a> </div>
+        <div><a href='/random'>random[use black]</a> </div>
+        <div><a href='/one_step#use_white'>one_step[use white]</a> </div>
+        <div><a href='/random#use_white'>random[use white]</a> </div>
         """)
 
 

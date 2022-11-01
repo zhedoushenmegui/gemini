@@ -142,7 +142,11 @@
             } else {
                 alert("use default agent: random")
             }
-
+            //
+            if(/use_white/.test(location.hash)) {
+                this.useBlack = false;
+                this.board[this.rows-1][0] = BLACK;
+            }
         },
 
         methods: {
