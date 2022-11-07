@@ -198,9 +198,36 @@ class Sizi1StepAgent(SiziAgent):
                     strict_acts.append(c - 1)
                     strict_acts.append(c + 1)
                     strict_acts.append(c + 3)
-
         if strict_acts:
             return strict_acts, 0
+        #
+        brilliant_acts = []
+        for r in range(sizi.height):
+            for c in range(sizi.width):
+                p = sizi.board[r][c]
+                if p != self.me:
+                    continue
+                # 左右
+                if (0 < c < sizi.width - 3
+                    and sizi.board[r][c - 1] == DEFAULT and sizi.board[r][c + 1] == p and sizi.board[r][
+                        c + 2] == DEFAULT and sizi.board[r][c + 3] == DEFAULT and (
+                            r == 0 or (sizi.board[r - 1][c - 1] != DEFAULT and sizi.board[r][
+                        c + 2] != DEFAULT and sizi.board[r][c + 3] != DEFAULT))):
+                    brilliant_acts.append(c + 2)
+                elif (1 < c < sizi.width - 2 and
+                            sizi.board[r][c - 2] == DEFAULT and sizi.board[r][c - 1] == DEFAULT and sizi.board[r][
+                                c + 1] == p and sizi.board[r][c + 2] == DEFAULT and (r == 0 or (
+                                sizi.board[r][c - 2] != DEFAULT and sizi.board[r][c - 1] != DEFAULT and sizi.board[r][
+                            c + 2] != DEFAULT))):
+                    brilliant_acts.append(c - 1)
+                # 中间
+                elif 0 < c < sizi.width - 3 and sizi.board[r][c - 1] == DEFAULT and sizi.board[r][c + 1] == DEFAULT and \
+                        sizi.board[r][c + 2] == p and sizi.board[r][c + 3] == DEFAULT and (
+                        r == 0 or sizi.board[r][c - 1] != DEFAULT and sizi.board[r][c + 1] != DEFAULT and sizi.board[r][
+                    c + 3] != DEFAULT):
+                    brilliant_acts.append(c + 1)
+        if brilliant_acts:
+            return brilliant_acts, 0
         return good_acts, 0
 
     def perform(self, sizi: Sizi0, *args, **kwargs):
