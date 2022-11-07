@@ -14,5 +14,14 @@ cd web
 sh start_sizi.sh
 
 ```
+### or
+```
+cd web
+python sizi_server.py
+
+```
 default port is 18020
 http://localhost:18020
+
+# build
+python setup.py bdist_wheel

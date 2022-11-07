@@ -123,18 +123,9 @@ class Sizi0:
             print(row)
 
 
-class SiziRandomAgent:
-    def __init__(self, *args, **kwargs):
-        pass
-
-    def perform(self, sizi: Sizi0, *args, **kwargs):
-        pot = random.choice(sizi.acts)
-        return pot[1]
-
-
-class Sizi1StepAgent:
+class SiziAgent:
     def __init__(self, me=WHITE):
-        self.inner = Sizi0(6, 8)
+        self.inner = None
         self.me = me
 
     def _copy(self, sizi: Sizi0):
@@ -143,6 +134,16 @@ class Sizi1StepAgent:
         inner.cal_acts()
         inner.black_flag = sizi.black_flag
         return inner
+
+
+
+class SiziRandomAgent(SiziAgent):
+    def perform(self, sizi: Sizi0, *args, **kwargs):
+        pot = random.choice(sizi.acts)
+        return pot[1]
+
+
+class Sizi1StepAgent(SiziAgent):
 
     def perform(self, sizi: Sizi0, *args, **kwargs):
         self.inner = self._copy(sizi)
@@ -179,6 +180,14 @@ class Sizi1StepAgent:
         act = random.choice(good_acts)
         row, col = act
         return col
+
+
+class Sizi2StepAgent:
+    def __init__(self, me=WHITE):
+        self.inner = Sizi0(6, 8)
+        self.me = me
+    def perform(self, sizi:Sizi0):
+        pass
 
 
 
