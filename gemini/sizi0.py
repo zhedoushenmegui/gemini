@@ -67,18 +67,14 @@ class Sizi0:
         self.acts = [(r, c) for r in range(self.height) for c in range(self.width) if
                      self.board[r][c] == DEFAULT and (r == 0 or self.board[r - 1][c] != DEFAULT)]
 
-    def step(self, r, c):
+    def step(self, c):
         if self.end:
             return False
         if c >= self.width or c < 0:
             return False
-        if r >= self.height or r < 0:
+        r = len([_[c] for _ in self.board if _[c] != DEFAULT])
+        if r >= self.height:
             return False
-        if self.board[r][c] != DEFAULT:
-            return False
-        if r > 0 and self.board[r - 1][c] == DEFAULT:
-            return False
-
         #
         pot = BLACK if self.black_flag else WHITE
         self.board[r][c] = pot
@@ -133,8 +129,7 @@ class SiziRandomAgent:
 
     def perform(self, sizi: Sizi0, *args, **kwargs):
         pot = random.choice(sizi.acts)
-        actioni = pot[0] * sizi.width + pot[1]
-        return actioni
+        return pot[1]
 
 
 class Sizi1StepAgent:
@@ -155,9 +150,9 @@ class Sizi1StepAgent:
         for act in self.inner.acts:
             inner = self._copy(self.inner)
             row, col = act
-            flag = inner.step(row, col)
+            flag = inner.step(col)
             if inner.end:
-                action = row * sizi.width + col
+                action = col
                 return action
 
         # 避免一步输
@@ -165,13 +160,13 @@ class Sizi1StepAgent:
         for act in self.inner.acts:
             inner = self._copy(self.inner)
             row, col = act
-            flag = inner.step(row, col)
+            flag = inner.step(col)
             next_acts = inner.acts
             good = True
             for nact in next_acts:
                 ninner = self._copy(inner)
                 row, col = nact
-                flag = ninner.step(row, col)
+                flag = ninner.step(col)
                 if ninner.end:
                     good = False
                     break
@@ -183,8 +178,9 @@ class Sizi1StepAgent:
         # 随机
         act = random.choice(good_acts)
         row, col = act
-        action = row * sizi.width + col
-        return action
+        return col
+
+
 
 
 if __name__ == '__main__':
@@ -200,7 +196,7 @@ if __name__ == '__main__':
     # sz.board[0] = [BLACK, BLACK, BLACK, DEFAULT, DEFAULT, DEFAULT]
     if not use_black:
         pot = agent.perform(sz)
-        sz.step(pot // sz.width, pot % sz.width)
+        sz.step(pot)
     #
     while not sz.end:
         sz.print_board()
@@ -209,19 +205,15 @@ if __name__ == '__main__':
         while sz.black_flag == use_black:
             txt = input().strip()
             try:
-                r = int(txt.split(",")[0])
-                c = int(txt.split(",")[1])
+                c = int(txt.split(",")[0])
             except:
                 print(txt)
                 continue
-            if (r, c) not in sz.acts:
-                print("invalid input, re input:")
-                continue
-            sz.step(r, c)
+            sz.step(c)
         if sz.end:
             break
         #
         pot = agent.perform(sz)
-        sz.step(pot // sz.width, pot % sz.width)
+        sz.step(pot)
     print("winner: ", sz.result)
     sz.print_board()

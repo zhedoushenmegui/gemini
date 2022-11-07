@@ -19,71 +19,60 @@ import tornado.web
 import json
 
 
-class RandomAgent(tornado.web.RequestHandler):
+class Agent(tornado.web.RequestHandler):
+    def _perform(self, board, rows, cols, use_black, *args, **kwargs):
+        action, end, result = None, None, None
+        return action, end, result
+
     def post(self):
-        resp = {}
         status = 0
         try:
             data = json.loads(self.request.body)
             board = data['board']
             rows = data['rows']
             cols = data['cols']
-
-            from gemini.sizi0 import Sizi0, SiziRandomAgent, WHITE, BLACK
             use_black = data.get('use_black', True)
-            sz = Sizi0(rows, cols)
-            sz.shuffle_board(board)
-            if sz.end:
-                resp = {'action': -1, 'end': sz.end, "winner": sz.result}
-            else:
-                sz.black_flag = not use_black
-                agent = SiziRandomAgent(me=WHITE if use_black else BLACK)
-                action = agent.perform(sz)
-                sz.step(action // sz.width, action % sz.width)
-                resp = {'action': action, 'end':sz.end, "winner":sz.result}
+            action, end, result = self._perform(board, rows, cols, use_black)
+            resp = {'action': action, 'end': end, "winner": result}
         except:
             status = -1
+            resp = {"msg": traceback.format_exc()}
             print(traceback.format_exc())
-        rst = json.dumps({"status": status, "resp":resp})
-        self.write(rst)
-
-
-    def get(self):
-        cnt = open(f"{project_path}/web/sizi_index.html", 'r').read()
-        self.write(cnt)
-
-
-class OneStepAgent(tornado.web.RequestHandler):
-    def post(self):
-        resp = {}
-        status = 0
-        try:
-            data = json.loads(self.request.body)
-            board = data['board']
-            rows = data['rows']
-            cols = data['cols']
-
-            from gemini.sizi0 import Sizi0, Sizi1StepAgent, WHITE, BLACK
-            use_black = data.get('use_black', True)
-            sz = Sizi0(rows, cols)
-            sz.shuffle_board(board)
-            if sz.end:
-                resp = {'action': -1, 'end': sz.end, "winner": sz.result}
-            else:
-                sz.black_flag = not use_black
-                agent = Sizi1StepAgent(me=WHITE if use_black else BLACK)
-                action = agent.perform(sz)
-                sz.step(action // sz.width, action % sz.width)
-                resp = {'action': action, 'end':sz.end, "winner":sz.result}
-        except:
-            status = -1
-            print(traceback.format_exc())
-        rst = json.dumps({"status": status, "resp":resp})
+        rst = json.dumps({"status": status, "resp": resp})
         self.write(rst)
 
     def get(self):
         cnt = open(f"{project_path}/web/sizi_index.html", 'r').read()
         self.write(cnt)
+
+
+class RandomAgent(Agent):
+    def _perform(self, board, rows, cols, use_black, *args, **kwargs):
+        from gemini.sizi0 import Sizi0, SiziRandomAgent, WHITE, BLACK
+        sz = Sizi0(rows, cols)
+        sz.shuffle_board(board)
+        if sz.end:
+            action = -1
+        else:
+            sz.black_flag = not use_black
+            agent = SiziRandomAgent(me=WHITE if use_black else BLACK)
+            action = agent.perform(sz)
+            sz.step(action)
+        return action, sz.end, sz.result
+
+
+class OneStepAgent(Agent):
+    def _perform(self, board, rows, cols, use_black, *args, **kwargs):
+        from gemini.sizi0 import Sizi0, Sizi1StepAgent, WHITE, BLACK
+        sz = Sizi0(rows, cols)
+        sz.shuffle_board(board)
+        if sz.end:
+            action = -1
+        else:
+            sz.black_flag = not use_black
+            agent = Sizi1StepAgent(me=WHITE if use_black else BLACK)
+            action = agent.perform(sz)
+        return action, sz.end, sz.result
 
 
 class Index(tornado.web.RequestHandler):

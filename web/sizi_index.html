@@ -71,6 +71,7 @@
         .row:first-child {
             border-top: none;
         }
+
         a {
             text-decoration: None;
         }
@@ -144,19 +145,19 @@
                 alert("use default agent: random")
             }
             //
-            if(/use_white/.test(location.hash)) {
+            if (/use_white/.test(location.hash)) {
                 this.useBlack = false;
-                this.board[this.rows-1][0] = BLACK;
+                this.board[this.rows - 1][0] = BLACK;
             }
             //
-            if(this.rows <6 || this.cols < 8) {
+            if (this.rows < 6 || this.cols < 8) {
                 alert("rows: [6, ), cols: [8, )");
                 this.locked = true;
             }
         },
 
         methods: {
-            refresh(){
+            refresh() {
                 location.reload()
             },
             post: function (url, raw, success, err) {
@@ -196,8 +197,15 @@
                     if (data.status === 0) {
                         let resp = data.resp;
                         if (resp.action >= 0) {
-                            let r = v.board.length - 1 - Math.floor(resp.action / v.cols);
-                            let c = resp.action % v.cols;
+                            let c = resp.action;
+
+                            let r = v.board.length - 1; //v.board.length - 1 - Math.floor(resp.action / v.cols);
+                            for (let i = v.board.length - 1; i >= 0; i--) {
+                                if(v.board[i][c] === DEFAULT) {
+                                    r = i;
+                                    break;
+                                }
+                            }
                             v.board[r][c] = v.useBlack ? WHITE : BLACK;
                         }
 
