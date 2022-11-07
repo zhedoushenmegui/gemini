@@ -181,12 +181,12 @@ class Sizi1StepAgent(SiziAgent):
                 if (0 < c < sizi.width - 3
                     and sizi.board[r][c - 1] == DEFAULT and sizi.board[r][c + 1] == p and sizi.board[r][
                         c + 2] == DEFAULT and sizi.board[r][c + 3] == DEFAULT and (
-                            r == 0 or (sizi.board[r - 1][c - 1] != DEFAULT and sizi.board[r][
-                        c + 2] != DEFAULT and sizi.board[r][c + 3] != DEFAULT))) \
+                            r == 0 or (sizi.board[r - 1][c - 1] != DEFAULT and sizi.board[r-1][
+                        c + 2] != DEFAULT and sizi.board[r-1][c + 3] != DEFAULT))) \
                         or (1 < c < sizi.width - 2 and
                             sizi.board[r][c - 2] == DEFAULT and sizi.board[r][c - 1] == DEFAULT and sizi.board[r][
                                 c + 1] == p and sizi.board[r][c + 2] == DEFAULT and (r == 0 or (
-                                sizi.board[r][c - 2] != DEFAULT and sizi.board[r][c - 1] != DEFAULT and sizi.board[r][
+                                sizi.board[r-1][c - 2] != DEFAULT and sizi.board[r-1][c - 1] != DEFAULT and sizi.board[r-1][
                             c + 2] != DEFAULT))):
                     strict_acts.append(c - 1)
                     strict_acts.append(c + 2)
@@ -209,14 +209,14 @@ class Sizi1StepAgent(SiziAgent):
                     continue
                 # 左右
                 if (0 < c < sizi.width - 3
-                    and sizi.board[r][c - 1] == DEFAULT and sizi.board[r][c + 1] == p and sizi.board[r][
-                        c + 2] == DEFAULT and sizi.board[r][c + 3] == DEFAULT and (
-                            r == 0 or (sizi.board[r - 1][c - 1] != DEFAULT and sizi.board[r][
-                        c + 2] != DEFAULT and sizi.board[r][c + 3] != DEFAULT))):
+                        and sizi.board[r][c - 1] == DEFAULT and sizi.board[r][c + 1] == p and sizi.board[r][
+                            c + 2] == DEFAULT and sizi.board[r][c + 3] == DEFAULT and (
+                                r == 0 or (sizi.board[r - 1][c - 1] != DEFAULT and sizi.board[r][
+                            c + 2] != DEFAULT and sizi.board[r][c + 3] != DEFAULT))):
                     brilliant_acts.append(c + 2)
                 elif (1 < c < sizi.width - 2 and
-                            sizi.board[r][c - 2] == DEFAULT and sizi.board[r][c - 1] == DEFAULT and sizi.board[r][
-                                c + 1] == p and sizi.board[r][c + 2] == DEFAULT and (r == 0 or (
+                      sizi.board[r][c - 2] == DEFAULT and sizi.board[r][c - 1] == DEFAULT and sizi.board[r][
+                          c + 1] == p and sizi.board[r][c + 2] == DEFAULT and (r == 0 or (
                                 sizi.board[r][c - 2] != DEFAULT and sizi.board[r][c - 1] != DEFAULT and sizi.board[r][
                             c + 2] != DEFAULT))):
                     brilliant_acts.append(c - 1)
@@ -247,7 +247,9 @@ if __name__ == '__main__':
     sz = Sizi0(6, 8)
 
     # 下面这行代码, 启动后, 黑方一步获胜, 方便调试
-    # sz.board[0] = [BLACK, BLACK, BLACK, DEFAULT, DEFAULT, DEFAULT]
+    sz.board[0] = [0, 2, 2, 1, 1, 1, 2, 0]
+    sz.board[1] = [0, 0, 0, 1, 0, 0, 0, 0]
+
     if not use_black:
         pot = agent.perform(sz)
         sz.step(pot)
