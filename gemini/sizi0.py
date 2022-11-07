@@ -130,11 +130,9 @@ class SiziAgent:
 
     def _copy(self, sizi: Sizi0):
         inner = Sizi0(sizi.height, sizi.width)
-        inner.board = [[p for p in row] for row in sizi.board]
-        inner.cal_acts()
+        inner.shuffle_board(sizi.board)
         inner.black_flag = sizi.black_flag
         return inner
-
 
 
 class SiziRandomAgent(SiziAgent):
@@ -145,50 +143,58 @@ class SiziRandomAgent(SiziAgent):
 
 class Sizi1StepAgent(SiziAgent):
 
-    def perform(self, sizi: Sizi0, *args, **kwargs):
+    def perform_process(self, sizi: Sizi0, ):
         self.inner = self._copy(sizi)
         # 一步就赢
         for act in self.inner.acts:
             inner = self._copy(self.inner)
-            row, col = act
-            flag = inner.step(col)
+            flag = inner.step(act[1])
             if inner.end:
-                action = col
-                return action
-
+                return [act[1]], 1
         # 避免一步输
         good_acts = []
         for act in self.inner.acts:
             inner = self._copy(self.inner)
-            row, col = act
-            flag = inner.step(col)
-            next_acts = inner.acts
+            inner.step(act[1])
             good = True
-            for nact in next_acts:
+            for nact in inner.acts:
                 ninner = self._copy(inner)
-                row, col = nact
-                flag = ninner.step(col)
+                ninner.step(nact[1])
                 if ninner.end:
                     good = False
                     break
             if good:
-                good_acts.append(act)
+                good_acts.append(act[1])
         # 这里没辙了
         if len(good_acts) == 0:
-            good_acts = self.inner.acts
-        # 随机
-        act = random.choice(good_acts)
-        row, col = act
-        return col
+            return [], -1
+        if len(good_acts) == 1:
+            return good_acts, 0
+        #
+        strict_acts = []
+        for r in range(sizi.height):
+            for c in range(sizi.width):
+                p = sizi.board[r][c]
+                if p == DEFAULT or p == self.me:
+                    continue
+                # 左右
+                if (0 < c < sizi.width - 3
+                    and sizi.board[r][c - 1] == DEFAULT and sizi.board[r][c + 1] == p and sizi.board[r][
+                        c + 2] == DEFAULT and sizi.board[r][c + 3] == DEFAULT) \
+                        or (1 < c < sizi.width - 2 and
+                            sizi.board[r][c - 2] == DEFAULT and sizi.board[r][c - 1] == DEFAULT and sizi.board[r][
+                                c + 1] == p and sizi.board[r][c + 2] == DEFAULT):
+                    strict_acts.append(c-1)
+                    strict_acts.append(c+2)
+        if strict_acts:
+            return strict_acts, 0
+        return good_acts, 0
 
-
-class Sizi2StepAgent:
-    def __init__(self, me=WHITE):
-        self.inner = Sizi0(6, 8)
-        self.me = me
-    def perform(self, sizi:Sizi0):
-        pass
-
+    def perform(self, sizi: Sizi0, *args, **kwargs):
+        good_acts, flag = self.perform_process(sizi)
+        if flag == -1:
+            return random.choice(sizi.acts)[1]
+        return random.choice(good_acts)
 
 
 
@@ -196,7 +202,7 @@ if __name__ == '__main__':
     # 输入坐标, 比如  "0,0"
     import random
 
-    use_black = False
+    use_black = True
 
     agent = Sizi1StepAgent(me=WHITE if use_black else BLACK)
     sz = Sizi0(6, 8)
