@@ -72,6 +72,7 @@ class OneStepAgent(Agent):
             sz.black_flag = not use_black
             agent = Sizi1StepAgent(me=WHITE if use_black else BLACK)
             action = agent.perform(sz)
+            sz.step(action)
         return action, sz.end, sz.result
 
 
