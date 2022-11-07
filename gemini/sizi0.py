@@ -180,12 +180,25 @@ class Sizi1StepAgent(SiziAgent):
                 # 左右
                 if (0 < c < sizi.width - 3
                     and sizi.board[r][c - 1] == DEFAULT and sizi.board[r][c + 1] == p and sizi.board[r][
-                        c + 2] == DEFAULT and sizi.board[r][c + 3] == DEFAULT) \
+                        c + 2] == DEFAULT and sizi.board[r][c + 3] == DEFAULT and (
+                            r == 0 or (sizi.board[r - 1][c - 1] != DEFAULT and sizi.board[r][
+                        c + 2] != DEFAULT and sizi.board[r][c + 3] != DEFAULT))) \
                         or (1 < c < sizi.width - 2 and
                             sizi.board[r][c - 2] == DEFAULT and sizi.board[r][c - 1] == DEFAULT and sizi.board[r][
-                                c + 1] == p and sizi.board[r][c + 2] == DEFAULT):
-                    strict_acts.append(c-1)
-                    strict_acts.append(c+2)
+                                c + 1] == p and sizi.board[r][c + 2] == DEFAULT and (r == 0 or (
+                                sizi.board[r][c - 2] != DEFAULT and sizi.board[r][c - 1] != DEFAULT and sizi.board[r][
+                            c + 2] != DEFAULT))):
+                    strict_acts.append(c - 1)
+                    strict_acts.append(c + 2)
+                # 中间
+                if 0 < c < sizi.width - 3 and sizi.board[r][c - 1] == DEFAULT and sizi.board[r][c + 1] == DEFAULT and \
+                        sizi.board[r][c + 2] == p and sizi.board[r][c + 3] == DEFAULT and (
+                        r == 0 or sizi.board[r][c - 1] != DEFAULT and sizi.board[r][c + 1] != DEFAULT and sizi.board[r][
+                    c + 3] != DEFAULT):
+                    strict_acts.append(c - 1)
+                    strict_acts.append(c + 1)
+                    strict_acts.append(c + 3)
+
         if strict_acts:
             return strict_acts, 0
         return good_acts, 0
@@ -195,7 +208,6 @@ class Sizi1StepAgent(SiziAgent):
         if flag == -1:
             return random.choice(sizi.acts)[1]
         return random.choice(good_acts)
-
 
 
 if __name__ == '__main__':
