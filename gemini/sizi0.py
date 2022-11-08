@@ -134,6 +134,9 @@ class SiziAgent:
         inner.black_flag = sizi.black_flag
         return inner
 
+    def perform(self, sizi: Sizi0, *args, **kwargs):
+        raise NotImplementedError
+
 
 class SiziRandomAgent(SiziAgent):
     def perform(self, sizi: Sizi0, *args, **kwargs):

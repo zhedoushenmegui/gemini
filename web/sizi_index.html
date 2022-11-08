@@ -141,13 +141,15 @@
                 this.agent = 'random';
             } else if (/one_step/.test(location.href)) {
                 this.agent = 'one_step';
+            } else if (/q_learning/.test(location.href)) {
+                this.agent = 'q_learning';
             } else {
                 alert("use default agent: random")
             }
             //
             if (/use_white/.test(location.hash)) {
                 this.useBlack = false;
-                this.board[this.rows - 1][0] = BLACK;
+                this.get_action();
             }
             //
             if (this.rows < 6 || this.cols < 8) {
@@ -158,7 +160,7 @@
 
         methods: {
             refresh() {
-                location.reload()
+                location.reload();
             },
             post: function (url, raw, success, err) {
                 axios.post(url, raw)
@@ -173,18 +175,11 @@
                         err(resp);
                     })
             },
-            putPot(r, c) {
-                if (r < this.board.length - 1 && this.board[r + 1][c] === DEFAULT) {
-                    return false;
-                }
-                if (this.board[r][c] !== DEFAULT) {
-                    return false;
-                }
+            get_action(){
                 if (this.locked) {
                     return false;
                 }
                 this.locked = true;
-                this.board[r][c] = this.useBlack ? BLACK : WHITE;
 
                 let newboard = [];
                 for (let i = this.board.length - 1; i >= 0; i--) {
@@ -226,7 +221,21 @@
                         alert("error, check server log");
                     }
                 });
+            },
+            putPot(r, c) {
+                if (r < this.board.length - 1 && this.board[r + 1][c] === DEFAULT) {
+                    return false;
+                }
+                if (this.board[r][c] !== DEFAULT) {
+                    return false;
+                }
+                if (this.locked) {
+                    return false;
+                }
 
+                this.board[r][c] = this.useBlack ? BLACK : WHITE;
+
+                this.get_action();
             }
         },
     }).mount('#app')

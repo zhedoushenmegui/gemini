@@ -17,6 +17,7 @@ import tornado.httpserver
 import tornado.ioloop
 import tornado.web
 import json
+from gemini.sizi0 import Sizi0, WHITE, BLACK
 
 
 class Agent(tornado.web.RequestHandler):
@@ -76,6 +77,25 @@ class OneStepAgent(Agent):
         return action, sz.end, sz.result
 
 
+from gemini.qlearning_agent import SiziQLearningAgent
+
+#q_w_agent = SiziQLearningAgent(mdl=f"{project_path}/models/sizi_q_g0_teacher.qtable", me=WHITE)
+q_b_agent = SiziQLearningAgent(mdl=f"{project_path}/models/sizi_q_g0_teacher.qtable", me=BLACK)
+
+
+class QLearningAgent(Agent):
+    def _perform(self, board, rows, cols, use_black, *args, **kwargs):
+        sz = Sizi0(rows, cols)
+        sz.shuffle_board(board)
+        if sz.end:
+            action = -1
+        else:
+            sz.black_flag = not use_black
+            action = q_b_agent.perform(sz)
+            sz.step(action)
+        return action, sz.end, sz.result
+
+
 class Index(tornado.web.RequestHandler):
     def get(self):
         self.write("""
@@ -83,13 +103,17 @@ class Index(tornado.web.RequestHandler):
         <div><a href='/random'>random[use black]</a> </div>
         <div><a href='/one_step#use_white'>one_step[use white]</a> </div>
         <div><a href='/random#use_white'>random[use white]</a> </div>
+        <div><a href='/q_learning#use_white'>q_learning[use white]</a> </div>
         """)
 
 
 routes = [
     ("/", Index),
     ("/random", RandomAgent),
-    ("/one_step", OneStepAgent)]
+    ("/one_step", OneStepAgent),
+    ("/q_learning", OneStepAgent),
+
+]
 
 if __name__ == '__main__':
     application = tornado.web.Application(routes)
