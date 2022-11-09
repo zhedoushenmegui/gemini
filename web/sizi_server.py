@@ -79,8 +79,8 @@ class OneStepAgent(Agent):
 
 from gemini.qlearning_agent import SiziQLearningAgent
 
-#q_w_agent = SiziQLearningAgent(mdl=f"{project_path}/models/sizi_q_g0_teacher.qtable", me=WHITE)
-q_b_agent = SiziQLearningAgent(mdl=f"{project_path}/models/sizi_q_g0_teacher.qtable", me=BLACK)
+q_w_agent = SiziQLearningAgent(mdl=f"{project_path}/models/sizi_q_g0_biway.qtable", me=WHITE)
+q_b_agent = SiziQLearningAgent(mdl=f"{project_path}/models/sizi_q_g0_biway.qtable", me=BLACK)
 
 
 class QLearningAgent(Agent):
@@ -99,8 +99,11 @@ class QLearningAgent(Agent):
 class Index(tornado.web.RequestHandler):
     def get(self):
         self.write("""
-        <div><a href='/one_step'>one_step[use black]</a> </div>
-        <div><a href='/random'>random[use black]</a> </div>
+        <div><a href='/one_step'>one_step</a> </div>
+        <div><a href='/random'>random</a> </div>
+        <div><a href='/q_learning'>q_learning</a> </div>
+
+        
         <div><a href='/one_step#use_white'>one_step[use white]</a> </div>
         <div><a href='/random#use_white'>random[use white]</a> </div>
         <div><a href='/q_learning#use_white'>q_learning[use white]</a> </div>

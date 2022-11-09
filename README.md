@@ -1,11 +1,8 @@
-# 五/四子棋逻辑
+# 四子棋逻辑
 
 todo:
 1. 了解对抗的env 写法
 2. 训练 selfplay/agent-league
-
-todo maybe:
-1. c++/cython 改写
 
 
 ## play with agent
@@ -25,3 +22,6 @@ http://localhost:18020
 
 # build
 python setup.py bdist_wheel
+
+# model
+models 下有个Qlearning 训练的模型

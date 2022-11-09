@@ -19,7 +19,6 @@ from gemini.sizi0 import SiziAgent, WHITE, Sizi0,BLACK
 class SiziQLearningAgent(SiziAgent):
     def __init__(self, mdl, me=WHITE):
         super(SiziQLearningAgent, self).__init__(me)
-        assert me == BLACK
 
         self.q_table = {}
         with open(mdl, "r") as f:
