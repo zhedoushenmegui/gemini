@@ -127,6 +127,7 @@ class SiziAgent:
     def __init__(self, me=WHITE):
         self.inner = None
         self.me = me
+        self.camp = "white" if me == WHITE else "black"
 
     def _copy(self, sizi: Sizi0):
         inner = Sizi0(sizi.height, sizi.width)

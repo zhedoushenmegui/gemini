@@ -18,6 +18,8 @@ import tornado.ioloop
 import tornado.web
 import json
 from gemini.sizi0 import Sizi0, WHITE, BLACK
+from web.conf import cols, rows
+from gemini.qlearning_agent import SiziQLearningAgent
 
 
 class Agent(tornado.web.RequestHandler):
@@ -33,7 +35,7 @@ class Agent(tornado.web.RequestHandler):
             rows = data['rows']
             cols = data['cols']
             use_black = data.get('use_black', True)
-            action, end, result = self._perform(board, rows, cols, use_black)
+            action, end, result = self._perform(board, rows, cols, use_black, data=data)
             resp = {'action': action, 'end': end, "winner": result}
         except:
             status = -1
@@ -77,10 +79,12 @@ class OneStepAgent(Agent):
         return action, sz.end, sz.result
 
 
-from gemini.qlearning_agent import SiziQLearningAgent
+from web.conf import q_learning_models
 
-q_w_agent = SiziQLearningAgent(mdl=f"{project_path}/models/sizi_q_g0_biway.qtable", me=WHITE)
-q_b_agent = SiziQLearningAgent(mdl=f"{project_path}/models/sizi_q_g0_biway.qtable", me=BLACK)
+q_w_agents = {}
+for mdl in q_learning_models:
+    w = SiziQLearningAgent(mdl=mdl, cols=cols, me=WHITE)
+    q_w_agents[w.name] = w
 
 
 class QLearningAgent(Agent):
@@ -91,34 +95,40 @@ class QLearningAgent(Agent):
             action = -1
         else:
             sz.black_flag = not use_black
-            action = q_b_agent.perform(sz)
+            data = kwargs['data']
+            mdl = data['mdl']
+            agent = q_w_agents[mdl]
+            action = agent.perform(sz)
             sz.step(action)
         return action, sz.end, sz.result
 
 
 class Index(tornado.web.RequestHandler):
     def get(self):
-        self.write("""
-        <div><a href='/one_step'>one_step</a> </div>
-        <div><a href='/random'>random</a> </div>
-        <div><a href='/q_learning'>q_learning</a> </div>
-
-        
-        <div><a href='/one_step#use_white'>one_step[use white]</a> </div>
-        <div><a href='/random#use_white'>random[use white]</a> </div>
-        <div><a href='/q_learning#use_white'>q_learning[use white]</a> </div>
-        """)
+        modelsx = [f"<div><a href='/random'>random</a> </div>",
+                   f"<div><a href='/random#use_white'>random[use white]</a> </div>",
+                   f"<div><a href='/one_step'>one_step</a> </div>",
+                   f"<div><a href='/one_step#use_white'>one_step[use white]</a> </div>",
+                   ]
+        for m in q_w_agents:
+            modelsx.append(f"<div><a href='/q_learning?mdl={m}'>{m}</a> </div>")
+            modelsx.append(f"<div><a href='/q_learning#use_white?mdl={m}'>{m}[use white]</a> </div>")
+        self.write(
+            "\n".join(modelsx)
+        )
 
 
 routes = [
     ("/", Index),
     ("/random", RandomAgent),
     ("/one_step", OneStepAgent),
-    ("/q_learning", OneStepAgent),
-
+    ("/q_learning", QLearningAgent),
 ]
 
 if __name__ == '__main__':
+    from web.log_util import set_logger
+    set_logger("server.log")
+    ###
     application = tornado.web.Application(routes)
     http_server = tornado.httpserver.HTTPServer(application, xheaders=True)
     ###

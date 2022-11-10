@@ -4,3 +4,4 @@ dist
 *.egg-info
 web/*.log
 web/*.pid
+models/*

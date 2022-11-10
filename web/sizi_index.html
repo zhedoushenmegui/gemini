@@ -124,10 +124,13 @@
                 locked: false,
                 ////
                 agent: 'random',
+                _search_param: {},
+                mdl: null,
 
             }
         },
         created() {
+            this._search_param = this.getSearchParam();
             this.board = [];
             for (let i = 0; i < this.rows; i++) {
                 let arr = [];
@@ -143,12 +146,14 @@
                 this.agent = 'one_step';
             } else if (/q_learning/.test(location.href)) {
                 this.agent = 'q_learning';
+                this.mdl = this._search_param["mdl"];
             } else {
                 alert("use default agent: random")
             }
             //
             if (/use_white/.test(location.hash)) {
                 this.useBlack = false;
+                this._search_param = this.getSearchParam();
                 this.get_action();
             }
             //
@@ -161,6 +166,21 @@
         methods: {
             refresh() {
                 location.reload();
+            },
+            getSearchParam() {
+                let search_param = {}
+                let s = location.href;
+                if (s.length > 10) {
+                    let arr = s.split("?")[1].split("&")
+                    for (let i = 0; i < arr.length; i++) {
+                        let brr = arr[i].split("=");
+                        if (brr[0].length > 0 && brr[1].length > 0) {
+                            search_param[brr[0]] = brr[1]
+                        }
+                    }
+                }
+                console.log(search_param)
+                return search_param;
             },
             post: function (url, raw, success, err) {
                 axios.post(url, raw)
@@ -175,7 +195,7 @@
                         err(resp);
                     })
             },
-            get_action(){
+            get_action() {
                 if (this.locked) {
                     return false;
                 }
@@ -186,7 +206,15 @@
                     newboard.push(this.board[i]);
                 }
 
-                let req = {board: newboard, use_black: this.useBlack, rows: this.rows, cols: this.cols};
+                let req = {
+                    board: newboard,
+                    use_black: this.useBlack,
+                    rows: this.rows,
+                    cols: this.cols,
+                    agent: this.agent,
+                    mdl: this.mdl,
+                    _search_param: this._search_param
+                };
                 let v = this;
                 this.post("/" + this.agent, req, function (data, status) {
                     if (data.status === 0) {
@@ -196,7 +224,7 @@
 
                             let r = v.board.length - 1; //v.board.length - 1 - Math.floor(resp.action / v.cols);
                             for (let i = v.board.length - 1; i >= 0; i--) {
-                                if(v.board[i][c] === DEFAULT) {
+                                if (v.board[i][c] === DEFAULT) {
                                     r = i;
                                     break;
                                 }
