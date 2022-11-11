@@ -17,7 +17,7 @@
         }
 
         #container {
-            width: 407px;
+            width: 410px;
             background: #CC9933;
 
             margin: 50px auto;
@@ -89,9 +89,9 @@
 
         <div v-for="(row, indexR) in board " class="row">
             <span v-for="(pot, indexC) in row" class="pot" @click="putPot(indexR, indexC)">
-                <span v-if="pot===BLACK" class="black">0</span>
-                <span v-if="pot===WHITE" class="white">0</span>
-                <span v-if="pot===DEFAULT" class="default">0</span>
+                <span v-if="pot===BLACK" class="black">.</span>
+                <span v-if="pot===WHITE" class="white">.</span>
+                <span v-if="pot===DEFAULT" class="default">.</span>
             </span>
         </div>
 
@@ -170,7 +170,7 @@
             getSearchParam() {
                 let search_param = {}
                 let s = location.href;
-                if (s.length > 10) {
+                if (s.length > 10 && s.indexOf("?")>0) {
                     let arr = s.split("?")[1].split("&")
                     for (let i = 0; i < arr.length; i++) {
                         let brr = arr[i].split("=");
@@ -179,7 +179,6 @@
                         }
                     }
                 }
-                console.log(search_param)
                 return search_param;
             },
             post: function (url, raw, success, err) {

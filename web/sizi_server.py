@@ -136,4 +136,11 @@ if __name__ == '__main__':
     if len(sys.argv) == 2:
         port = int(sys.argv[1].strip())
     http_server.listen(port)
+    #
+    import platform
+    if platform.system().lower() == 'darwin':
+        os.system(f"open 'http://localhost:{port}'")
+    #
     tornado.ioloop.IOLoop.current().start()
+
+
